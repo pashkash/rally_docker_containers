@@ -1,5 +1,5 @@
 #!/bin/bash
-# This file create necessary files for working langevitydocker container.
+# This file create necessary files for working rally container with cert tests.
 
 #1. copy cert file
 cp /etc/ssl/certs/ca-certificates.crt ./resources/
