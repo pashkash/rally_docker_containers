@@ -1,0 +1,15 @@
+heat_template_version: 2013-05-23
+
+parameters:
+  nof_instances:
+    type: number
+    constraints:
+      - range: {min: 1}
+
+resources:
+  rg:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: { get_param: nof_instances }
+      resource_def:
+        type: "http://172.16.44.5/longevity/stress-hdd-instance.yml.template"

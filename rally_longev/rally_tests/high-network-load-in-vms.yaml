@@ -1,0 +1,31 @@
+---
+LongevityScenario.check_stack_status_and_sleep:
+  -
+    args:
+      seconds: 10
+      stack_status: "CREATE_COMPLETE"
+    runner:
+      type: "serial"
+      times: 18
+    context:
+      users:
+        tenants: 1
+        users_per_tenant: 1
+      longevity_stacks:
+        nof_stacks: 1
+        nof_instances_per_stack: {{ compute // 2 }}
+        template_path: "{{ current_path }}/heat-templates/wget-centos-iso-stack.yml.template"
+    sla:
+      truck:
+        incidents:
+          - after_iteration: 5
+            node: compute_all
+            action: "cat /proc/swaps"
+            stdout_regexp: ".*/dev.*\\s+[a-z]+\\s+[0-9]+\\s+0"
+        context_slas:
+          - iteration_start: 1
+            iteration_finish: 90
+            sla: failure_rate
+            parameters:
+              max: 0
+

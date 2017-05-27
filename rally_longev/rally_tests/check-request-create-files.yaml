@@ -1,0 +1,34 @@
+---
+  HttpRequests.check_request:
+    -
+      args:
+        url: "http://www.example.com"
+        method: "GET"
+        status_code: 200
+        allow_redirects: False
+      runner:
+        type: "constant"
+        times: 20
+        concurrency: 5
+      sla:
+        truck:
+          incidents:
+            - after_iteration: 1
+              node: compute_0
+              action: "echo 'hello world' > Textfile"
+            - after_iteration: 2
+              node: controller_0
+              action: "echo 'hello controller' > Textfile"
+            - after_iteration: 2
+              node: compute_0
+              action: "ls Textfile"
+            - after_iteration: 15
+              node: controller_0
+              action: "ls Textfile"
+            - after_iteration: 18
+              node: compute_0
+              action: "rm Textfile"
+            - after_iteration: 19
+              node: controller_0
+              action: "rm Textfile"
+          context_slas: []

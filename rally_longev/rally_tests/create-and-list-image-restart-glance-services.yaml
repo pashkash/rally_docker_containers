@@ -1,0 +1,72 @@
+---
+  GlanceImages.create_and_list_image:
+    -
+      args:
+        image_location: "http://172.16.44.5/cirros-0.3.1-x86_64-disk.img"
+        container_format: "bare"
+        disk_format: "qcow2"
+      runner:
+        type: "constant"
+        times: {{ 120 }}
+        concurrency: {{ 3 }}
+      context:
+        users:
+          tenants: 1
+          users_per_tenant: 1
+      sla:
+        truck:
+          incidents:
+            - after_iteration: 15
+              node: controller_0
+              action: "service glance-api restart; service glance-registry restart"
+              stdout_regexp: ".*api.*stop.*api.*start.*reg.*stop.*reg.*start"
+            - after_iteration: 20
+              node: controller_0
+              action: "service glance-api restart; service glance-registry restart"
+              stdout_regexp: ".*api.*stop.*api.*start.*reg.*stop.*reg.*start"
+            - after_iteration: 25
+              node: controller_0
+              action: "service glance-api restart; service glance-registry restart"
+              stdout_regexp: ".*api.*stop.*api.*start.*reg.*stop.*reg.*start"
+            - after_iteration: 30
+              node: controller_0
+              action: "service glance-api restart; service glance-registry restart"
+              stdout_regexp: ".*api.*stop.*api.*start.*reg.*stop.*reg.*start"
+            - after_iteration: 35
+              node: controller_0
+              action: "service glance-api restart; service glance-registry restart"
+              stdout_regexp: ".*api.*stop.*api.*start.*reg.*stop.*reg.*start"
+            - after_iteration: 40
+              node: controller_0
+              action: "service glance-api restart; service glance-registry restart"
+              stdout_regexp: ".*api.*stop.*api.*start.*reg.*stop.*reg.*start"
+            - after_iteration: 45
+              node: controller_0
+              action: "service glance-api restart; service glance-registry restart"
+              stdout_regexp: ".*api.*stop.*api.*start.*reg.*stop.*reg.*start"
+          context_slas:
+            - iteration_start: 1
+              iteration_finish: 10
+              sla: failure_rate
+              parameters:
+                max: 0
+            - iteration_start: 15
+              iteration_finish: 50
+              sla: failure_rate
+              parameters:
+                max: 50
+            - iteration_start: 55
+              iteration_finish: 80
+              sla: failure_rate
+              parameters:
+                max: 15
+            - iteration_start: 81
+              iteration_finish: 100
+              sla: failure_rate
+              parameters:
+                max: 5
+            - iteration_start: 101
+              iteration_finish: 120
+              sla: failure_rate
+              parameters:
+                max: 0

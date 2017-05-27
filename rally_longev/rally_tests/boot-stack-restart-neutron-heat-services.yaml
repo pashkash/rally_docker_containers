@@ -1,0 +1,72 @@
+---
+LongevityScenario.check_stack_status_and_sleep:
+  -
+    args:
+      seconds: 1
+      stack_status: "CREATE_COMPLETE"
+    runner:
+      type: "constant"
+      times: 100
+      concurrency: 3
+    context:
+      users:
+        tenants: 1
+        users_per_tenant: 1
+      longevity_stacks:
+        nof_stacks: 1
+        nof_instances_per_stack: {{ compute * cpu }}
+        template_path: "{{ current_path }}/heat-templates/stack.yml.template"
+    sla:
+      truck:
+        incidents:
+          - after_iteration: 10
+            node: controller_0
+            action: "service neutron-server restart; service neutron-openvswitch-agent restart; service neutron-l3-agent restart; service neutron-dhcp-agent restart"
+            stdout_regexp: ".*ver.*stop.*ver.*start.*ent.*stop.*ent.*start.*ent.*stop.*ent.*start.*ent.*stop.*ent.*start"
+          - after_iteration: 15
+            node: controller_0
+            action: "service neutron-server restart; service neutron-openvswitch-agent restart; service neutron-l3-agent restart; service neutron-dhcp-agent restart"
+            stdout_regexp: ".*ver.*stop.*ver.*start.*ent.*stop.*ent.*start.*ent.*stop.*ent.*start.*ent.*stop.*ent.*start"
+          - after_iteration: 20
+            node: controller_0
+            action: "service neutron-server restart; service neutron-openvswitch-agent restart; service neutron-l3-agent restart; service neutron-dhcp-agent restart"
+            stdout_regexp: ".*ver.*stop.*ver.*start.*ent.*stop.*ent.*start.*ent.*stop.*ent.*start.*ent.*stop.*ent.*start"
+          - after_iteration: 50
+            node: controller_0
+            action: "service heat-api restart; service heat-engine restart"
+            stdout_regexp: ".*api.*stop.*api.*start.*engine.*stop.*engine.*start"
+          - after_iteration: 55
+            node: controller_0
+            action: "service heat-api restart; service heat-engine restart"
+            stdout_regexp: ".*api.*stop.*api.*start.*engine.*stop.*engine.*start"
+          - after_iteration: 60
+            node: controller_0
+            action: "service heat-api restart; service heat-engine restart"
+            stdout_regexp: ".*api.*stop.*api.*start.*engine.*stop.*engine.*start"
+        context_slas:
+          - iteration_start: 1
+            iteration_finish: 9
+            sla: failure_rate
+            parameters:
+              max: 0
+          - iteration_start: 10
+            iteration_finish: 25
+            sla: failure_rate
+            parameters:
+              max: 50
+          - iteration_start: 26
+            iteration_finish: 49
+            sla: failure_rate
+            parameters:
+              max: 0
+          - iteration_start: 50
+            iteration_finish: 65
+            sla: failure_rate
+            parameters:
+              max: 50
+          - iteration_start: 66
+            iteration_finish: 100
+            sla: failure_rate
+            parameters:
+              max: 0
+

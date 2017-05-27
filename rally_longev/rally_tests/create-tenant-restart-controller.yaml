@@ -1,0 +1,31 @@
+---
+  KeystoneBasic.create_tenant:
+    -
+      args: {}
+      runner:
+        type: "constant"
+        times: 3000
+        concurrency: 10
+      sla:
+        truck:
+          incidents:
+            - after_iteration: 2
+              node: controller_0
+              action: 'reboot --no-wall'
+          context_slas:
+            - iteration_start: 2
+              iteration_finish: 1000
+              sla: failure_rate
+              parameters:
+                max: 999
+            - iteration_start: 1000
+              iteration_finish: 2500
+              sla: failure_rate
+              parameters:
+                max: 500
+            - iteration_start: 2501
+              iteration_finish: 3000
+              sla: failure_rate
+              parameters:
+                max: 100
+

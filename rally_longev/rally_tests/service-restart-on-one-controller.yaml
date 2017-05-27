@@ -1,0 +1,101 @@
+---
+  LongevityScenario.check_stack_status_and_sleep:
+    -
+      args:
+        seconds: 5
+        stack_status: "CREATE_COMPLETE"
+      runner:
+        type: "serial"
+        times: 120
+      context:
+        users:
+          tenants: 1
+          users_per_tenant: 1
+        longevity_stacks:
+          nof_stacks: 1
+          nof_instances_per_stack: {{ compute * cpu }}
+          template_path: "{{ current_path }}/heat-templates/stack.yml.template"
+        quotas:
+          nova:
+            instances: -1
+            cores: -1
+            ram: -1
+            floating_ips: -1
+            security_groups: -1
+            security_group_rules: -1
+          neutron:
+            network: -1
+            subnet: -1
+            port: -1
+      sla:
+        truck:
+          incidents:
+            - after_iteration: 10
+              node: controller_0
+              action: "service neutron-server restart; service neutron-openvswitch-agent restart; service neutron-l3-agent restart; service neutron-dhcp-agent restart"
+              stdout_regexp: ".*ver.*start.*ent.*start.*ent.*start.*ent.*start"
+            - after_iteration: 15
+              node: controller_1
+              action: "service neutron-server restart; service neutron-openvswitch-agent restart; service neutron-l3-agent restart; service neutron-dhcp-agent restart"
+              stdout_regexp: ".*ver.*start.*ent.*start.*ent.*start.*ent.*start"
+            - after_iteration: 20
+              node: controller_2
+              action: "service neutron-server restart; service neutron-openvswitch-agent restart; service neutron-l3-agent restart; service neutron-dhcp-agent restart"
+              stdout_regexp: ".*ver.*start.*ent.*start.*ent.*start.*ent.*start"
+            - after_iteration: 25
+              node: controller_0
+              action: "service heat-api restart; service heat-engine restart"
+              stdout_regexp: ".*api.*start.*engine.*start"
+            - after_iteration: 30
+              node: controller_1
+              action: "service heat-api restart; service heat-engine restart"
+              stdout_regexp: ".*api.*start.*engine.*start"
+            - after_iteration: 35
+              node: controller_2
+              action: "service heat-api restart; service heat-engine restart"
+              stdout_regexp: ".*api.*start.*engine.*start"
+            - after_iteration: 25
+              node: controller_0
+              action: "service apache2 restart"
+              stdout_regexp: ".*Restarting web server apache2.*"
+            - after_iteration: 30
+              node: controller_1
+              action: "service apache2 restart"
+              stdout_regexp: ".*Restarting web server apache2.*"
+            - after_iteration: 35
+              node: controller_2
+              action: "service apache2 restart"
+              stdout_regexp: ".*Restarting web server apache2.*"
+            - after_iteration: 60
+              node: controller_0
+              action: "service cinder-api restart; service cinder-scheduler restart; service cinder-volume restart"
+              stdout_regexp: ".*api.*start.*scheduler.*start.*volume.*start"
+            - after_iteration: 65
+              node: controller_1
+              action: "service cinder-api restart; service cinder-scheduler restart; service cinder-volume restart"
+              stdout_regexp: ".*api.*start.*scheduler.*start.*volume.*start"
+            - after_iteration: 70
+              node: controller_2
+              action: "service cinder-api restart; service cinder-scheduler restart; service cinder-volume restart"
+              stdout_regexp: ".*api.*start.*scheduler.*start.*volume.*start"
+          context_slas:
+            - iteration_start: 1
+              iteration_finish: 9
+              sla: failure_rate
+              parameters:
+                max: 0
+            - iteration_start: 10
+              iteration_finish: 75
+              sla: failure_rate
+              parameters:
+                max: 100
+            - iteration_start: 76
+              iteration_finish: 85
+              sla: failure_rate
+              parameters:
+                max: 0
+            - iteration_start: 86
+              iteration_finish: 120
+              sla: failure_rate
+              parameters:
+                max: 0

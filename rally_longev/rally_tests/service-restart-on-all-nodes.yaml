@@ -1,0 +1,78 @@
+---
+  LongevityScenario.check_stack_status_and_sleep:
+    -
+      args:
+        seconds: 5
+        stack_status: "CREATE_COMPLETE"
+      runner:
+        type: "serial"
+        times: 120
+      context:
+        users:
+          tenants: 1
+          users_per_tenant: 1
+        longevity_stacks:
+          nof_stacks: 1
+          nof_instances_per_stack: {{ compute * cpu }}
+          template_path: "{{ current_path }}/heat-templates/stack.yml.template"
+        quotas:
+          nova:
+            instances: -1
+            cores: -1
+            ram: -1
+            floating_ips: -1
+            security_groups: -1
+            security_group_rules: -1
+          neutron:
+            network: -1
+            subnet: -1
+            port: -1
+      sla:
+        truck:
+          incidents:
+            - after_iteration: 10
+              node: controller_all
+              action: "service neutron-server restart; service neutron-openvswitch-agent restart; service neutron-l3-agent restart; service neutron-dhcp-agent restart"
+            - after_iteration: 20
+              node: controller_all
+              action: "service apache2 restart"
+            - after_iteration: 25
+              node: controller_all
+              action: "service heat-api restart; service heat-engine restart"
+            - after_iteration: 30
+              node: controller_all
+              action: "service nova-api restart; service nova-scheduler restart"
+            - after_iteration: 35
+              node: controller_all
+              action: "service cinder-api restart; service cinder-volume restart"
+            - after_iteration: 40
+              node: controller_all
+              action: "service glance-api restart; service glance-registry restart"
+            - after_iteration: 45
+              node: compute_all
+              action: "service nova-compute restart"
+            - after_iteration: 50
+              node: compute_all
+              action: "service neutron-l3-agent restart"
+            - after_iteration: 55
+              node: compute_all
+              action: "service libvirtd restart"
+            - after_iteration: 60
+              node: compute_all
+              action: "service qemu-kvm restart"
+          context_slas:
+            - iteration_start: 1
+              iteration_finish: 9
+              sla: failure_rate
+              parameters:
+                max: 0
+            - iteration_start: 10
+              iteration_finish: 65
+              sla: failure_rate
+              parameters:
+                max: 100
+            - iteration_start: 66
+              iteration_finish: 120
+              sla: failure_rate
+              parameters:
+                max: 0

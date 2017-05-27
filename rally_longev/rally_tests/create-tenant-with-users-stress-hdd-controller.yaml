@@ -1,0 +1,25 @@
+---
+  KeystoneBasic.create_tenant_with_users:
+    -
+      args:
+        name_length: 10
+        users_per_tenant: 10
+      runner:
+        type: "constant"
+        times: {{ controller * 200 }}
+        concurrency: 5
+      sla:
+        truck:
+          incidents:
+            - after_iteration: 1
+              node: controller_all
+              action: "apt-get install stress; stress --hdd 2 &"
+            - after_iteration: {{ controller * 200 - 1 }}
+              node: controller_all
+              action: "ps -ef | grep stress | awk '{print $2}' | xargs kill -9"
+          context_slas:
+            - iteration_start: 1
+              iteration_finish: {{ controller * 200 }}
+              sla: failure_rate
+              parameters:
+                max: 50

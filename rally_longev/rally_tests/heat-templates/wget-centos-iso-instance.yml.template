@@ -1,0 +1,16 @@
+heat_template_version: 2013-05-23
+resources:
+  server:
+    type: OS::Nova::Server
+    properties:
+      image: ubuntu_14.04
+      flavor: m1.small
+      networks:
+        - port: {get_resource: port}
+      user_data: |
+        #!/bin/bash
+        wget http://mirror.nsu.ru/centos/7/isos/x86_64/CentOS-7-x86_64-DVD-1511.iso &
+  port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: admin_internal_net
